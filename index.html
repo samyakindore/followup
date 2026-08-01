@@ -158,6 +158,7 @@
             align-self: flex-start;
         }
         .badge-course { background: #e0f2fe; color: #0369a1; }
+        .badge-missed { background: #fee2e2; color: #991b1b; }
 
         /* History & Inputs */
         .history-box { 
@@ -257,7 +258,7 @@
                         <option value="Leads">Leads</option>
                     </select>
                 </div>
-                <h2>Today's Follow-ups <span style="color: #64748b; font-size: 16px; font-weight: 400;">(<span id="todayDate"></span>)</span></h2>
+                <h2>Pending & Today's Follow-ups <span style="color: #64748b; font-size: 16px; font-weight: 400;">(Due $\le$ <span id="todayDate"></span>)</span></h2>
             </div>
             <div style="display: flex; gap: 15px; align-items: center;">
                 <button class="refresh-btn" onclick="loadData()">Refresh Records</button>
@@ -364,17 +365,41 @@
         function filterAndRender() {
             const query = document.getElementById("searchInput").value.toLowerCase().trim();
             
-            if (query) {
-                filteredRecords = allRecords.filter(row => {
+            // Get today's date formatted as YYYY-MM-DD (ignoring time component)
+            const todayObj = new Date();
+            todayObj.setHours(0, 0, 0, 0);
+
+            // Filter records: Status should generally be open, and follow-up date <= Today
+            filteredRecords = allRecords.filter(row => {
+                const status = String(row["Status"] || "Open").trim();
+                
+                // Optional: If you only want to see open follow-ups that are due or past due
+                if (status.toLowerCase() === "converted" || status.toLowerCase() === "dropped") {
+                    return false;
+                }
+
+                const rawDate = row["Followup Date"];
+                if (!rawDate) return false; // Skip if no date provided
+
+                const followupDateObj = new Date(rawDate);
+                if (isNaN(followupDateObj.getTime())) return false;
+                followupDateObj.setHours(0, 0, 0, 0);
+
+                // Check if the follow-up date is today or in the past
+                const isDueOrPast = followupDateObj <= todayObj;
+                if (!isDueOrPast) return false;
+
+                // Apply text search query filter if user typed something
+                if (query) {
                     const name = String(row["Student Name"] || "").toLowerCase();
                     const mobile = String(row["Mobile No"] || "").toLowerCase();
                     const course = String(row["Course"] || "").toLowerCase();
                     const id = String(row["Enquiry ID"] || "").toLowerCase();
                     return name.includes(query) || mobile.includes(query) || course.includes(query) || id.includes(query);
-                });
-            } else {
-                filteredRecords = [...allRecords];
-            }
+                }
+
+                return true;
+            });
 
             renderPage();
         }
@@ -387,7 +412,7 @@
             document.getElementById("countBadge").innerText = `Total Records: ${filteredRecords.length}`;
 
             if (filteredRecords.length === 0) {
-                container.innerHTML = `<div class="loading">No matching records found!</div>`;
+                container.innerHTML = `<div class="loading">No pending or missed follow-ups found! 🎉</div>`;
                 paginationBar.style.display = "none";
                 return;
             }
@@ -400,14 +425,25 @@
             const endIdx = startIdx + pageSize;
             const pageItems = filteredRecords.slice(startIdx, endIdx);
 
+            const todayObj = new Date();
+            todayObj.setHours(0, 0, 0, 0);
+
             pageItems.forEach(row => {
                 const card = document.createElement("div");
                 card.className = "enquiry-card";
                 
                 const existingRemarks = row["Remarks"] || "";
-                const followupDate = formatDateForInput(row["Followup Date"]);
+                const followupDateStr = formatDateForInput(row["Followup Date"]);
                 const currentStatus = row["Status"] || "Open";
                 const emailVal = row["Email Id"] ? escapeHtml(row["Email Id"]) : "-";
+
+                // Check if it's a missed (past) date
+                let dateBadge = `<span class="badge">Due: ${followupDateStr}</span>`;
+                const fDateObj = new Date(row["Followup Date"]);
+                fDateObj.setHours(0,0,0,0);
+                if (fDateObj < todayObj) {
+                    dateBadge = `<span class="badge badge-missed">Missed: ${followupDateStr}</span>`;
+                }
 
                 card.innerHTML = `
                     <div class="card-col">
@@ -437,7 +473,8 @@
                     </div>
                     <div class="card-col">
                         <div class="sub-text" style="font-weight:600; color:#334155; margin-bottom:4px;">Next Follow-up</div>
-                        <input type="date" id="date_${row.rowIndex}" value="${followupDate}">
+                        ${dateBadge}
+                        <input type="date" id="date_${row.rowIndex}" value="${followupDateStr}">
                     </div>
                     <div class="card-col">
                         <button class="action-btn" onclick="updateRow(${row.rowIndex})">Save Update</button>
