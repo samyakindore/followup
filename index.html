@@ -44,7 +44,7 @@
         }
         .login-btn { width: 100%; padding: 12px; font-size: 15px; }
         .login-btn:hover, .refresh-btn:hover, .page-btn:hover:not(:disabled) { background: #0284c7; }
-        .refresh-btn { font-size: 13px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .refresh-btn { font-size: 13px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
         /* Dashboard Container */
         .dashboard { 
@@ -245,16 +245,16 @@
         <div class="toolbar">
             <div class="controls-left">
                 <div>
-                    <label style="font-size:11px; font-weight:700; color:#64748b; display:block; margin-bottom:4px; text-transform:uppercase;">Source Sheet</label>
+                    <label style="font-size:11px; font-weight:700; color:#64748b; display:block; margin-bottom:4px; text-transform:uppercase;">Source</label>
                     <select id="sheetSelector" onchange="loadData()" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: 600; font-size: 13px;">
-                        <option value="Enquiry">Enquiry Sheet</option>
-                        <option value="Leads">Leads Sheet</option>
+                        <option value="Enquiry">Enquiry</option>
+                        <option value="Leads">Leads</option>
                     </select>
                 </div>
                 <h2>Today's Follow-ups <span style="color: #64748b; font-size: 16px; font-weight: 400;">(<span id="todayDate"></span>)</span></h2>
             </div>
             <div style="display: flex; gap: 15px; align-items: center;">
-                <button class="refresh-btn" onclick="loadData()">🔄 Refresh Records</button>
+                <button class="refresh-btn" onclick="loadData()">Refresh Records</button>
                 <div style="font-size: 14px; color: #475569;">Logged in as: <strong id="loggedInUser" style="color:#0ea5e9;"></strong></div>
             </div>
         </div>
@@ -401,13 +401,14 @@
                 const existingRemarks = row["Remarks"] || "";
                 const followupDate = formatDateForInput(row["Followup Date"]);
                 const currentStatus = row["Status"] || "Open";
+                const emailVal = row["Email Id"] ? escapeHtml(row["Email Id"]) : "-";
 
                 card.innerHTML = `
                     <div class="card-col">
                         <span class="badge">ID: ${escapeHtml(row["Enquiry ID"] || "-")}</span>
                         <h4>${escapeHtml(row["Student Name"] || "Unnamed")}</h4>
                         <div class="sub-text">📞 ${escapeHtml(row["Mobile No"] || "-")}</div>
-                        <div class="sub-text">✉️ ${escapeHtml(row["Email Id"] || "-")}</div>
+                        <div class="sub-text">✉️ ${emailVal}</div>
                     </div>
                     <div class="card-col">
                         <span class="badge badge-course">${escapeHtml(row["Course"] || "General Enquiry")}</span>
@@ -461,14 +462,13 @@
             const status = document.getElementById(`status_${rowIndex}`).value;
             let followupDate = document.getElementById(`date_${rowIndex}`).value;
 
-            // Prompt for next follow-up date if status is Open and date field is blank or user wants to confirm
             if (status.toLowerCase() === "open" && !followupDate) {
                 const userDateInput = prompt("Status is Open. Please enter the next follow-up date (YYYY-MM-DD):", "");
                 if (userDateInput !== null) {
                     followupDate = userDateInput.trim();
                     document.getElementById(`date_${rowIndex}`).value = followupDate;
                 } else {
-                    return; // Cancelled update
+                    return; 
                 }
             }
 
