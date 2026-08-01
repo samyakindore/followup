@@ -4,33 +4,139 @@
     <meta charset="UTF-8">
     <title>Enquiry Follow-up Dashboard</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f9; }
-        .login-container, .dashboard { background: #fff; padding: 20px; border-radius: 8px; max-width: 900px; margin: auto; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .hidden { display: none; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 40px 20px; 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); 
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-container { 
+            background: #fff; 
+            padding: 40px; 
+            border-radius: 12px; 
+            width: 100%; 
+            max-width: 400px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            text-align: center;
+        }
+        .login-container h2 {
+            margin-bottom: 24px;
+            color: #333;
+            font-weight: 600;
+        }
+        .input-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #007BFF;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+        .login-btn {
+            width: 100%;
+            background: #007BFF;
+            color: white;
+            border: none;
+            padding: 12px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        .login-btn:hover { background: #0056b3; }
+
+        .dashboard { 
+            background: #fff; 
+            padding: 30px; 
+            border-radius: 12px; 
+            width: 100%; 
+            max-width: 1000px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+        }
+        .dashboard h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        .hidden { display: none !important; }
+        
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background-color: #007BFF; color: white; }
-        input[type="text"], input[type="date"] { width: 95%; padding: 6px; }
-        button { background: #28a745; color: white; border: none; padding: 8px 12px; cursor: pointer; border-radius: 4px; }
-        button:hover { background: #218838; }
+        th, td { border: 1px solid #eee; padding: 12px; text-align: left; }
+        th { background-color: #007BFF; color: white; font-weight: 500; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        
+        input[type="text"], input[type="date"] { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;}
+        
+        .action-btn { 
+            background: #28a745; 
+            color: white; 
+            border: none; 
+            padding: 8px 16px; 
+            cursor: pointer; 
+            border-radius: 4px; 
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        .action-btn:hover { background: #218838; }
+        
+        .error-banner {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+            display: none;
+        }
     </style>
 </head>
 <body>
 
     <!-- Login Section -->
     <div id="loginSection" class="login-container">
-        <h2>Staff Login</h2>
-        <label>Username / Name:</label><br>
-        <input type="text" id="username" placeholder="Enter your name"><br><br>
-        <label>Password:</label><br>
-        <input type="password" id="password" placeholder="Enter password"><br><br>
-        <button onclick="handleLogin()">Login</button>
+        <h2>Staff Portal</h2>
+        <div id="loginError" class="error-banner"></div>
+        <div class="input-group">
+            <label>Username / Name</label>
+            <input type="text" id="username" placeholder="Enter your name">
+        </div>
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="password" placeholder="Enter password">
+        </div>
+        <button class="login-btn" onclick="handleLogin()">Sign In</button>
     </div>
 
     <!-- Dashboard Section -->
     <div id="dashboardSection" class="dashboard hidden">
-        <h2>Today's Follow-ups (<span id="todayDate"></span>)</h2>
-        <p>Logged in as: <strong id="loggedInUser"></strong></p>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px;">
+            <h2>Today's Follow-ups (<span id="todayDate"></span>)</h2>
+            <div>Logged in as: <strong id="loggedInUser" style="color: #007BFF;"></strong></div>
+        </div>
+        
+        <div id="appError" class="error-banner"></div>
+
         <table>
             <thead>
                 <tr>
@@ -49,13 +155,15 @@
     </div>
 
     <script>
-        // PASTE YOUR LATEST DEPLOYED GOOGLE APPS SCRIPT WEB APP URL HERE:
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxsQU8YADim0Y2YFBCcD7XW-oVoprJXNShRPGcTpFSQwnK4SLaVRaHrfKK7NRNR-lcKoA/exec";
         let currentUser = "";
 
         function handleLogin() {
             const user = document.getElementById("username").value.trim();
             const pass = document.getElementById("password").value;
+            const errorDiv = document.getElementById("loginError");
+
+            errorDiv.style.display = "none";
 
             if (pass === "mayank" && user !== "") {
                 currentUser = user; 
@@ -66,36 +174,57 @@
                 document.getElementById("todayDate").innerText = new Date().toISOString().split('T')[0];
                 loadData();
             } else {
-                alert("Invalid username or password. (Password is 'mayank')");
+                errorDiv.innerText = "Invalid username or password. (Password is 'mayank')";
+                errorDiv.style.display = "block";
             }
         }
 
+        function showError(message) {
+            const errorDiv = document.getElementById("appError");
+            errorDiv.innerText = "Error: " + message;
+            errorDiv.style.display = "block";
+        }
+
         function loadData() {
+            const errorDiv = document.getElementById("appError");
+            errorDiv.style.display = "none";
+
             fetch(WEB_APP_URL)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) throw new Error("Network response was not ok (HTTP " + response.status + ")");
+                    return response.json();
+                })
                 .then(data => {
                     const tbody = document.getElementById("tableBody");
                     tbody.innerHTML = "";
                     
+                    if(data.error) {
+                        showError(data.error);
+                        return;
+                    }
+
                     if(data.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No follow-ups scheduled for today!</td></tr>`;
+                        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: #777;">No follow-ups scheduled for today!</td></tr>`;
                         return;
                     }
 
                     data.forEach(row => {
                         const tr = document.createElement("tr");
                         tr.innerHTML = `
-                            <td>${row.Name}</td>
-                            <td>${row.Phone}</td>
-                            <td>${row.Enquiry Details}</td>
+                            <td>${row.Name || ''}</td>
+                            <td>${row.Phone || ''}</td>
+                            <td>${row.Enquiry Details || ''}</td>
                             <td><input type="text" id="remarks_${row.rowIndex}" value="${row.Remarks || ''}"></td>
                             <td><input type="date" id="date_${row.rowIndex}" value="${row.Followup Date || ''}"></td>
-                            <td><button onclick="updateRow(${row.rowIndex})">Update</button></td>
+                            <td><button class="action-btn" onclick="updateRow(${row.rowIndex})">Update</button></td>
                         `;
                         tbody.appendChild(tr);
                     });
                 })
-                .catch(err => console.error("Error loading data:", err));
+                .catch(err => {
+                    console.error("Error loading data:", err);
+                    showError("Failed to connect to backend script. Verify your WEB_APP_URL or deployment permissions.");
+                });
         }
 
         function updateRow(rowIndex) {
@@ -103,18 +232,24 @@
             const followupDate = document.getElementById(`date_${rowIndex}`).value;
             const updatedBy = encodeURIComponent(currentUser);
 
-            // Construct URL parameters to cleanly send update data through GET request to avoid CORS blocks
             const updateUrl = `${WEB_APP_URL}?action=update&rowIndex=${rowIndex}&remarks=${remarks}&followupDate=${followupDate}&updatedBy=${updatedBy}`;
 
             fetch(updateUrl)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) throw new Error("Failed to reach server");
+                    return response.json();
+                })
                 .then(result => {
-                    alert("Updated successfully!");
-                    loadData(); 
+                    if(result.status === "success") {
+                        alert("Updated successfully!");
+                        loadData(); 
+                    } else {
+                        showError(result.message || "Unknown backend error during update.");
+                    }
                 })
                 .catch(err => {
                     console.error("Error updating:", err);
-                    alert("Failed to update.");
+                    showError("Failed to update record. Check console logs.");
                 });
         }
     </script>
