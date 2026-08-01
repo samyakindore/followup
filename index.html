@@ -143,13 +143,12 @@
             flex-direction: column;
             justify-content: center;
         }
-        /* Specifically center-align the button container column vertically */
         .card-col.action-col {
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: stretch;
+            justify-content: flex-end; /* Align elements to bottom line of form controls */
             height: 100%;
+            padding-bottom: 2px; /* Fine-tune baseline alignment with date input */
         }
 
         .card-col h4 { margin: 0 0 6px 0; font-size: 16px; color: #0f172a; font-weight: 600; }
@@ -190,6 +189,7 @@
             font-family: inherit;
             outline: none;
             background: #fff;
+            height: 38px; /* Standardized uniform height for inputs & button */
         }
         textarea { resize: vertical; height: 45px; }
         textarea:focus, select:focus, input[type="date"]:focus { border-color: #0ea5e9; box-shadow: 0 0 0 2px rgba(14,165,233,0.1); }
@@ -198,15 +198,17 @@
             background: #10b981; 
             color: white; 
             border: none; 
-            padding: 10px 16px; 
+            padding: 0 16px; 
             cursor: pointer; 
-            border-radius: 8px; 
+            border-radius: 6px; 
             font-weight: 600; 
             font-size: 13px;
             width: 100%; 
+            height: 38px; /* Matches form input element height perfectly */
             transition: background 0.2s;
-            margin-top: auto;
-            margin-bottom: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .action-btn:hover { background: #059669; }
 
