@@ -6,38 +6,160 @@
     <title>Enquiry & Leads Follow-up Dashboard</title>
     <style>
         * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 40px 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; }
-        .login-container { background: #fff; padding: 40px; border-radius: 12px; width: 100%; max-width: 400px; margin: 80px auto; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
-        .login-container h2 { margin-bottom: 24px; color: #333; font-weight: 600; }
+        body { 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            margin: 0; 
+            padding: 30px 15px; 
+            background: #f4f7f6; 
+            color: #333;
+            min-height: 100vh; 
+        }
+
+        /* Login Container */
+        .login-container { 
+            background: #fff; 
+            padding: 40px; 
+            border-radius: 16px; 
+            width: 100%; 
+            max-width: 400px; 
+            margin: 80px auto; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
+            text-align: center; 
+        }
+        .login-container h2 { margin-bottom: 24px; color: #1e293b; font-weight: 600; }
         .input-group { text-align: left; margin-bottom: 20px; }
-        .input-group label { display: block; margin-bottom: 8px; color: #555; font-size: 14px; font-weight: 500; }
-        .input-group input, .input-group select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; background: #fff; }
-        .login-btn, .refresh-btn { background: #007BFF; color: white; border: none; padding: 10px 16px; cursor: pointer; border-radius: 6px; font-weight: 600; }
-        .login-btn { width: 100%; padding: 12px; font-size: 16px; }
-        .login-btn:hover, .refresh-btn:hover { background: #0056b3; }
-        .dashboard { background: #fff; padding: 30px; border-radius: 12px; width: 100%; max-width: 1350px; margin: 0 auto; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .input-group label { display: block; margin-bottom: 8px; color: #64748b; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .input-group input, .input-group select { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #fff; outline: none; transition: border-color 0.2s; }
+        .input-group input:focus, .input-group select:focus { border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14,165,233,0.1); }
+
+        .login-btn, .refresh-btn { 
+            background: #0ea5e9; 
+            color: white; 
+            border: none; 
+            padding: 10px 18px; 
+            cursor: pointer; 
+            border-radius: 8px; 
+            font-weight: 600; 
+            transition: background 0.2s; 
+        }
+        .login-btn { width: 100%; padding: 12px; font-size: 15px; }
+        .login-btn:hover, .refresh-btn:hover { background: #0284c7; }
+        .refresh-btn { font-size: 13px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+        /* Dashboard Container */
+        .dashboard { 
+            background: #fff; 
+            padding: 30px; 
+            border-radius: 16px; 
+            width: 100%; 
+            max-width: 1250px; 
+            margin: 0 auto; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
+        }
         .hidden { display: none !important; }
+
+        /* Toolbar Header */
+        .toolbar { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 2px solid #f1f5f9; 
+            padding-bottom: 20px; 
+            margin-bottom: 25px; 
+            flex-wrap: wrap; 
+            gap: 15px; 
+        }
+        .controls-left { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+        .toolbar h2 { margin: 0; font-size: 22px; color: #0f172a; font-weight: 700; }
         
-        .toolbar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
-        .controls-left { display: flex; gap: 15px; align-items: center; }
+        /* Banners */
+        .error-banner, .success-banner { padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; display: none; font-size: 14px; font-weight: 500; }
+        .error-banner { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .success-banner { background-color: #dcfce7; color: #166534; border: 1px solid #86efac; }
+        .loading { text-align: center; padding: 40px; color: #64748b; font-size: 15px; }
+
+        /* Modern CRM Card Grid System */
+        .enquiry-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: all 0.2s ease;
+            display: grid;
+            grid-template-columns: 2fr 2fr 3fr 1.5fr 1.5fr 1fr;
+            gap: 20px;
+            align-items: center;
+        }
+        .enquiry-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        /* Card Columns */
+        .card-col h4 { margin: 0 0 6px 0; font-size: 16px; color: #0f172a; font-weight: 600; }
+        .card-col .sub-text { font-size: 12px; color: #64748b; margin-bottom: 3px; display: flex; align-items: center; gap: 5px; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #eee; padding: 10px; text-align: left; vertical-align: top; font-size: 13px; }
-        th { background-color: #007BFF; color: white; font-weight: 500; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-        
-        input[type="text"], input[type="date"], select, textarea { width: 100%; padding: 7px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; box-sizing: border-box; font-size: 13px; }
-        textarea { resize: vertical; height: 55px; margin-top: 5px; }
-        .history-box { font-size: 11px; color: #444; background: #f1f3f5; padding: 6px; border-radius: 4px; white-space: pre-wrap; max-height: 90px; overflow-y: auto; border: 1px solid #e9ecef; }
-        
-        .action-btn { background: #28a745; color: white; border: none; padding: 8px 14px; cursor: pointer; border-radius: 4px; font-weight: 500; width: 100%; }
-        .action-btn:hover { background: #218838; }
-        
-        .error-banner, .success-banner { padding: 12px; border-radius: 6px; margin-bottom: 20px; display: none; }
-        .error-banner { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .success-banner { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .loading { text-align: center; padding: 30px; color: #666; }
-        .meta-info { font-size: 11px; color: #666; margin-bottom: 3px; }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 6px;
+            background: #f1f5f9;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+        .badge-course { background: #e0f2fe; color: #0369a1; }
+
+        /* History & Inputs */
+        .history-box { 
+            font-size: 11px; 
+            color: #334155; 
+            background: #f8fafc; 
+            padding: 8px 10px; 
+            border-radius: 6px; 
+            white-space: pre-wrap; 
+            max-height: 75px; 
+            overflow-y: auto; 
+            border: 1px solid #e2e8f0; 
+            margin-bottom: 8px; 
+        }
+        textarea, select, input[type="date"] {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+            background: #fff;
+        }
+        textarea { resize: vertical; height: 45px; }
+        textarea:focus, select:focus, input[type="date"]:focus { border-color: #0ea5e9; box-shadow: 0 0 0 2px rgba(14,165,233,0.1); }
+
+        .action-btn { 
+            background: #10b981; 
+            color: white; 
+            border: none; 
+            padding: 10px 16px; 
+            cursor: pointer; 
+            border-radius: 8px; 
+            font-weight: 600; 
+            font-size: 13px;
+            width: 100%; 
+            transition: background 0.2s;
+        }
+        .action-btn:hover { background: #059669; }
+
+        /* Responsive Layout for smaller screens */
+        @media(max-width: 1100px) {
+            .enquiry-card { grid-template-columns: 1fr 1fr; }
+        }
+        @media(max-width: 700px) {
+            .enquiry-card { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -69,38 +191,25 @@
         <div class="toolbar">
             <div class="controls-left">
                 <div>
-                    <label style="font-size:12px; font-weight:600; color:#555; display:block; margin-bottom:4px;">Source Sheet:</label>
-                    <select id="sheetSelector" onchange="loadData()" style="padding: 8px; border-radius: 6px; border: 1px solid #ddd; font-weight: 600;">
+                    <label style="font-size:11px; font-weight:700; color:#64748b; display:block; margin-bottom:4px; text-transform:uppercase;">Source Sheet</label>
+                    <select id="sheetSelector" onchange="loadData()" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: 600; font-size: 13px;">
                         <option value="Enquiry">Enquiry Sheet</option>
                         <option value="Leads">Leads Sheet</option>
                     </select>
                 </div>
-                <h2 style="margin: 0; font-size: 20px;">Today's Follow-ups (<span id="todayDate"></span>)</h2>
+                <h2>Today's Follow-ups <span style="color: #64748b; font-size: 16px; font-weight: 400;">(<span id="todayDate"></span>)</span></h2>
             </div>
             <div style="display: flex; gap: 15px; align-items: center;">
                 <button class="refresh-btn" onclick="loadData()">🔄 Refresh Records</button>
-                <div>Logged in as: <strong id="loggedInUser" style="color:#007BFF;"></strong></div>
+                <div style="font-size: 14px; color: #475569;">Logged in as: <strong id="loggedInUser" style="color:#0ea5e9;"></strong></div>
             </div>
         </div>
 
         <div id="appError" class="error-banner"></div>
         <div id="successMessage" class="success-banner"></div>
 
-        <div style="overflow-x: auto;">
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 14%;">Student Info</th>
-                        <th style="width: 12%;">Course & Pref</th>
-                        <th style="width: 10%;">Qualification & Source</th>
-                        <th style="width: 24%;">Remarks History & New Comment</th>
-                        <th style="width: 12%;">Status</th>
-                        <th style="width: 14%;">Next Follow-up</th>
-                        <th style="width: 14%;">Action</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-            </table>
+        <div id="cardsContainer">
+            <!-- Dynamic Cards Will Load Here -->
         </div>
     </div>
 
@@ -147,61 +256,77 @@
 
         function loadData() {
             const sheetName = document.getElementById("sheetSelector").value;
-            const tbody = document.getElementById("tableBody");
-            tbody.innerHTML = '<tr><td colspan="7" class="loading">Loading records from ' + sheetName + '...</td></tr>';
+            const container = document.getElementById("cardsContainer");
+            container.innerHTML = `<div class="loading">Loading records from ${sheetName}...</div>`;
 
             fetch(`${WEB_APP_URL}?sheet=${encodeURIComponent(sheetName)}`)
                 .then(res => res.json())
                 .then(data => {
-                    tbody.innerHTML = "";
+                    container.innerHTML = "";
                     if (data.error) { showError(data.error); return; }
                     if (!Array.isArray(data) || data.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#777; padding:30px;">No open follow-ups scheduled for today in ${sheetName}!</td></tr>`;
+                        container.innerHTML = `<div class="loading">No open follow-ups scheduled for today in ${sheetName}!</div>`;
                         return;
                     }
 
                     data.forEach(row => {
-                        const tr = document.createElement("tr");
+                        const card = document.createElement("div");
+                        card.className = "enquiry-card";
+                        
                         const existingRemarks = row["Remarks"] || "";
                         const followupDate = formatDateForInput(row["Followup Date"]);
                         const currentStatus = row["Status"] || "Open";
 
-                        tr.innerHTML = `
-                            <td>
-                                <div class="meta-info"><b>ID:</b> ${escapeHtml(row["Enquiry ID"] || "-")}</div>
-                                <div style="font-weight:600; color:#333;">${escapeHtml(row["Student Name"] || "")}</div>
-                                <div class="meta-info">📞 ${escapeHtml(row["Mobile No"] || "")}</div>
-                                <div class="meta-info">✉️ ${escapeHtml(row["Email Id"] || "")}</div>
-                            </td>
-                            <td>
-                                <div style="font-weight:600; color:#007BFF;">${escapeHtml(row["Course"] || "-")}</div>
-                                <div class="meta-info" style="margin-top:4px;"><b>Timing:</b> ${escapeHtml(row["Preferred Timing"] || "-")}</div>
-                                <div class="meta-info"><b>Purpose:</b> ${escapeHtml(row["Purpose"] || "-")}</div>
-                            </td>
-                            <td>
-                                <div class="meta-info"><b>Qual:</b> ${escapeHtml(row["Qualification"] || "-")}</div>
-                                <div class="meta-info" style="margin-top:4px;"><b>Source:</b> ${escapeHtml(row["Source"] || "-")}</div>
-                                <div class="meta-info"><b>Dt:</b> ${escapeHtml(row["Date"] || "-")}</div>
-                            </td>
-                            <td>
+                        card.innerHTML = `
+                            <!-- Col 1: Student Info -->
+                            <div class="card-col">
+                                <span class="badge">ID: ${escapeHtml(row["Enquiry ID"] || "-")}</span>
+                                <h4>${escapeHtml(row["Student Name"] || "Unnamed")}</h4>
+                                <div class="sub-text">📞 ${escapeHtml(row["Mobile No"] || "-")}</div>
+                                <div class="sub-text">✉️ ${escapeHtml(row["Email Id"] || "-")}</div>
+                            </div>
+
+                            <!-- Col 2: Course & Preferences -->
+                            <div class="card-col">
+                                <span class="badge badge-course">${escapeHtml(row["Course"] || "General Enquiry")}</span>
+                                <div class="sub-text"><b>Timing:</b> ${escapeHtml(row["Preferred Timing"] || "-")}</div>
+                                <div class="sub-text"><b>Purpose:</b> ${escapeHtml(row["Purpose"] || "-")}</div>
+                                <div class="sub-text"><b>Source:</b> ${escapeHtml(row["Source"] || "-")}</div>
+                            </div>
+
+                            <!-- Col 3: Remarks History & Input -->
+                            <div class="card-col" style="grid-column: span 1;">
+                                <div class="sub-text" style="font-weight:600; color:#334155; margin-bottom:2px;">Remarks History</div>
                                 <div class="history-box">${escapeHtml(existingRemarks || "No previous remarks")}</div>
                                 <textarea id="remarks_${row.rowIndex}" placeholder="Add new comment..."></textarea>
-                            </td>
-                            <td>
+                            </div>
+
+                            <!-- Col 4: Status Selector -->
+                            <div class="card-col">
+                                <div class="sub-text" style="font-weight:600; color:#334155; margin-bottom:4px;">Status</div>
                                 <select id="status_${row.rowIndex}">
                                     <option value="Open" ${currentStatus === "Open" ? "selected" : ""}>Open</option>
                                     <option value="Converted" ${currentStatus === "Converted" ? "selected" : ""}>Converted</option>
                                     <option value="Dropped" ${currentStatus === "Dropped" ? "selected" : ""}>Dropped</option>
                                 </select>
-                            </td>
-                            <td><input type="date" id="date_${row.rowIndex}" value="${followupDate}"></td>
-                            <td><button class="action-btn" onclick="updateRow(${row.rowIndex})">Update</button></td>
+                            </div>
+
+                            <!-- Col 5: Next Followup Date -->
+                            <div class="card-col">
+                                <div class="sub-text" style="font-weight:600; color:#334155; margin-bottom:4px;">Next Follow-up</div>
+                                <input type="date" id="date_${row.rowIndex}" value="${followupDate}">
+                            </div>
+
+                            <!-- Col 6: Action Button -->
+                            <div class="card-col" style="display:flex; align-items:flex-end;">
+                                <button class="action-btn" onclick="updateRow(${row.rowIndex})">Save Update</button>
+                            </div>
                         `;
-                        tbody.appendChild(tr);
+                        container.appendChild(card);
                     });
                 })
                 .catch(err => {
-                    tbody.innerHTML = "";
+                    container.innerHTML = "";
                     showError("Failed to connect to backend server.");
                 });
         }
