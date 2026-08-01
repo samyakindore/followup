@@ -1,741 +1,251 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enquiry Follow-up Dashboard</title>
-
-```
-<style>
-    * {
-        box-sizing: border-box;
-    }
-
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        margin: 0;
-        padding: 40px 20px;
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        min-height: 100vh;
-    }
-
-    .login-container {
-        background: #fff;
-        padding: 40px;
-        border-radius: 12px;
-        width: 100%;
-        max-width: 400px;
-        margin: 80px auto;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        text-align: center;
-    }
-
-    .login-container h2 {
-        margin-bottom: 24px;
-        color: #333;
-        font-weight: 600;
-    }
-
-    .input-group {
-        text-align: left;
-        margin-bottom: 20px;
-    }
-
-    .input-group label {
-        display: block;
-        margin-bottom: 8px;
-        color: #555;
-        font-size: 14px;
-        font-weight: 500;
-    }
-
-    .input-group input {
-        width: 100%;
-        padding: 12px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-size: 14px;
-    }
-
-    .login-btn {
-        width: 100%;
-        background: #007BFF;
-        color: white;
-        border: none;
-        padding: 12px;
-        cursor: pointer;
-        border-radius: 6px;
-        font-size: 16px;
-        font-weight: 600;
-    }
-
-    .login-btn:hover {
-        background: #0056b3;
-    }
-
-    .dashboard {
-        background: #fff;
-        padding: 30px;
-        border-radius: 12px;
-        width: 100%;
-        max-width: 1200px;
-        margin: 0 auto;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    }
-
-    .hidden {
-        display: none !important;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
-
-    th,
-    td {
-        border: 1px solid #eee;
-        padding: 12px;
-        text-align: left;
-    }
-
-    th {
-        background-color: #007BFF;
-        color: white;
-        font-weight: 500;
-    }
-
-    tr:nth-child(even) {
-        background-color: #f9f9f9;
-    }
-
-    input[type="text"],
-    input[type="date"] {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-    }
-
-    .action-btn {
-        background: #28a745;
-        color: white;
-        border: none;
-        padding: 8px 16px;
-        cursor: pointer;
-        border-radius: 4px;
-        font-weight: 500;
-    }
-
-    .action-btn:hover {
-        background: #218838;
-    }
-
-    .error-banner {
-        background-color: #f8d7da;
-        color: #721c24;
-        padding: 12px;
-        border-radius: 6px;
-        margin-bottom: 20px;
-        border: 1px solid #f5c6cb;
-        display: none;
-    }
-
-    .success-banner {
-        background-color: #d4edda;
-        color: #155724;
-        padding: 12px;
-        border-radius: 6px;
-        margin-bottom: 20px;
-        border: 1px solid #c3e6cb;
-        display: none;
-    }
-
-    .loading {
-        text-align: center;
-        padding: 30px;
-        color: #666;
-    }
-
-    @media (max-width: 900px) {
-        .dashboard {
-            overflow-x: auto;
-        }
-
-        table {
-            min-width: 900px;
-        }
-    }
-</style>
-```
-
+    <title>Enquiry & Leads Follow-up Dashboard</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 40px 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; }
+        .login-container { background: #fff; padding: 40px; border-radius: 12px; width: 100%; max-width: 400px; margin: 80px auto; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
+        .login-container h2 { margin-bottom: 24px; color: #333; font-weight: 600; }
+        .input-group { text-align: left; margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; color: #555; font-size: 14px; font-weight: 500; }
+        .input-group input, .input-group select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; background: #fff; }
+        .login-btn, .refresh-btn { background: #007BFF; color: white; border: none; padding: 10px 16px; cursor: pointer; border-radius: 6px; font-weight: 600; }
+        .login-btn { width: 100%; padding: 12px; font-size: 16px; }
+        .login-btn:hover, .refresh-btn:hover { background: #0056b3; }
+        .dashboard { background: #fff; padding: 30px; border-radius: 12px; width: 100%; max-width: 1350px; margin: 0 auto; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .hidden { display: none !important; }
+        
+        .toolbar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+        .controls-left { display: flex; gap: 15px; align-items: center; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #eee; padding: 10px; text-align: left; vertical-align: top; font-size: 13px; }
+        th { background-color: #007BFF; color: white; font-weight: 500; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        
+        input[type="text"], input[type="date"], select, textarea { width: 100%; padding: 7px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; box-sizing: border-box; font-size: 13px; }
+        textarea { resize: vertical; height: 55px; margin-top: 5px; }
+        .history-box { font-size: 11px; color: #444; background: #f1f3f5; padding: 6px; border-radius: 4px; white-space: pre-wrap; max-height: 90px; overflow-y: auto; border: 1px solid #e9ecef; }
+        
+        .action-btn { background: #28a745; color: white; border: none; padding: 8px 14px; cursor: pointer; border-radius: 4px; font-weight: 500; width: 100%; }
+        .action-btn:hover { background: #218838; }
+        
+        .error-banner, .success-banner { padding: 12px; border-radius: 6px; margin-bottom: 20px; display: none; }
+        .error-banner { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .success-banner { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .loading { text-align: center; padding: 30px; color: #666; }
+        .meta-info { font-size: 11px; color: #666; margin-bottom: 3px; }
+    </style>
 </head>
-
 <body>
 
-```
-<!-- LOGIN -->
-<div id="loginSection" class="login-container">
-
-    <h2>Staff Portal</h2>
-
-    <div id="loginError" class="error-banner"></div>
-
-    <div class="input-group">
-        <label>Username / Name</label>
-        <input
-            type="text"
-            id="username"
-            placeholder="Enter your name"
-        >
-    </div>
-
-    <div class="input-group">
-        <label>Password</label>
-        <input
-            type="password"
-            id="password"
-            placeholder="Enter password"
-            onkeydown="if(event.key === 'Enter') handleLogin()"
-        >
-    </div>
-
-    <button class="login-btn" onclick="handleLogin()">
-        Sign In
-    </button>
-
-</div>
-
-
-<!-- DASHBOARD -->
-<div id="dashboardSection" class="dashboard hidden">
-
-    <div style="
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        border-bottom:1px solid #eee;
-        padding-bottom:15px;
-        margin-bottom:20px;
-    ">
-
-        <h2>
-            Today's Follow-ups
-            (<span id="todayDate"></span>)
-        </h2>
-
-        <div>
-            Logged in as:
-            <strong id="loggedInUser" style="color:#007BFF;"></strong>
+    <!-- LOGIN SECTION -->
+    <div id="loginSection" class="login-container">
+        <h2>Staff Portal</h2>
+        <div id="loginError" class="error-banner"></div>
+        
+        <div class="input-group">
+            <label>Select Employee</label>
+            <select id="username">
+                <option value="">-- Choose Name --</option>
+                <option value="Mayank">Mayank</option>
+                <option value="Employee1">Employee 1</option>
+                <option value="Employee2">Employee 2</option>
+            </select>
         </div>
 
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="password" placeholder="Enter password" onkeydown="if(event.key === 'Enter') handleLogin()">
+        </div>
+        <button class="login-btn" onclick="handleLogin()">Sign In</button>
     </div>
 
-
-    <div id="appError" class="error-banner"></div>
-
-    <div id="successMessage" class="success-banner"></div>
-
-
-    <table>
-
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Phone</th>
-                <th>Details</th>
-                <th>New Remarks</th>
-                <th>Next Follow-up Date</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-
-        <tbody id="tableBody">
-        </tbody>
-
-    </table>
-
-</div>
-```
-
-<script>
-
-/* =========================================================
-   GOOGLE APPS SCRIPT WEB APP URL
-   ========================================================= */
-
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxsQU8YADim0Y2YFBCcD7XW-oVoprJXNShRPGcTpFSQwnK4SLaVRaHrfKK7NRNR-lcKoA/exec";
-
-
-let currentUser = "";
-
-
-/* =========================================================
-   LOGIN
-   ========================================================= */
-
-function handleLogin() {
-
-    const user =
-        document.getElementById("username").value.trim();
-
-    const pass =
-        document.getElementById("password").value;
-
-    const errorDiv =
-        document.getElementById("loginError");
-
-
-    errorDiv.style.display = "none";
-
-
-    if (user === "") {
-
-        errorDiv.innerText =
-            "Please enter your username.";
-
-        errorDiv.style.display = "block";
-
-        return;
-    }
-
-
-    if (pass !== "mayank") {
-
-        errorDiv.innerText =
-            "Invalid password. Please enter the correct password.";
-
-        errorDiv.style.display = "block";
-
-        return;
-    }
-
-
-    /* LOGIN SUCCESS */
-
-    currentUser = user;
-
-
-    document.getElementById("loggedInUser").innerText =
-        currentUser;
-
-
-    document.getElementById("loginSection")
-        .classList.add("hidden");
-
-
-    document.getElementById("dashboardSection")
-        .classList.remove("hidden");
-
-
-    /* Use local date instead of UTC */
-
-    const today = new Date();
-
-    const yyyy =
-        today.getFullYear();
-
-    const mm =
-        String(today.getMonth() + 1).padStart(2, "0");
-
-    const dd =
-        String(today.getDate()).padStart(2, "0");
-
-
-    document.getElementById("todayDate").innerText =
-        `${yyyy}-${mm}-${dd}`;
-
-
-    loadData();
-}
-
-
-/* =========================================================
-   ERROR MESSAGE
-   ========================================================= */
-
-function showError(message) {
-
-    const errorDiv =
-        document.getElementById("appError");
-
-    errorDiv.innerText =
-        "Error: " + message;
-
-    errorDiv.style.display =
-        "block";
-}
-
-
-/* =========================================================
-   SUCCESS MESSAGE
-   ========================================================= */
-
-function showSuccess(message) {
-
-    const successDiv =
-        document.getElementById("successMessage");
-
-    successDiv.innerText =
-        message;
-
-    successDiv.style.display =
-        "block";
-
-
-    setTimeout(function() {
-
-        successDiv.style.display =
-            "none";
-
-    }, 3000);
-}
-
-
-/* =========================================================
-   LOAD TODAY'S DATA
-   ========================================================= */
-
-function loadData() {
-
-    const errorDiv =
-        document.getElementById("appError");
-
-    errorDiv.style.display =
-        "none";
-
-
-    const tbody =
-        document.getElementById("tableBody");
-
-
-    tbody.innerHTML =
-        '<tr><td colspan="6" class="loading">Loading follow-ups...</td></tr>';
-
-
-    fetch(WEB_APP_URL)
-
-        .then(function(response) {
-
-            if (!response.ok) {
-
-                throw new Error(
-                    "Server returned HTTP " + response.status
-                );
-
-            }
-
-            return response.json();
-
-        })
-
-        .then(function(data) {
-
-            tbody.innerHTML = "";
-
-
-            if (data.error) {
-
-                showError(data.error);
-
-                return;
-            }
-
-
-            if (!Array.isArray(data)) {
-
-                showError(
-                    "Invalid data received from Google Apps Script."
-                );
-
-                return;
-            }
-
-
-            if (data.length === 0) {
-
-                tbody.innerHTML = `
+    <!-- DASHBOARD SECTION -->
+    <div id="dashboardSection" class="dashboard hidden">
+        <div class="toolbar">
+            <div class="controls-left">
+                <div>
+                    <label style="font-size:12px; font-weight:600; color:#555; display:block; margin-bottom:4px;">Source Sheet:</label>
+                    <select id="sheetSelector" onchange="loadData()" style="padding: 8px; border-radius: 6px; border: 1px solid #ddd; font-weight: 600;">
+                        <option value="Enquiry">Enquiry Sheet</option>
+                        <option value="Leads">Leads Sheet</option>
+                    </select>
+                </div>
+                <h2 style="margin: 0; font-size: 20px;">Today's Follow-ups (<span id="todayDate"></span>)</h2>
+            </div>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <button class="refresh-btn" onclick="loadData()">🔄 Refresh Records</button>
+                <div>Logged in as: <strong id="loggedInUser" style="color:#007BFF;"></strong></div>
+            </div>
+        </div>
+
+        <div id="appError" class="error-banner"></div>
+        <div id="successMessage" class="success-banner"></div>
+
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
                     <tr>
-                        <td colspan="6"
-                            style="text-align:center; color:#777; padding:30px;">
-                            No follow-ups scheduled for today!
-                        </td>
+                        <th style="width: 14%;">Student Info</th>
+                        <th style="width: 12%;">Course & Pref</th>
+                        <th style="width: 10%;">Qualification & Source</th>
+                        <th style="width: 24%;">Remarks History & New Comment</th>
+                        <th style="width: 12%;">Status</th>
+                        <th style="width: 14%;">Next Follow-up</th>
+                        <th style="width: 14%;">Action</th>
                     </tr>
-                `;
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
 
+    <script>
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxsQU8YADim0Y2YFBCcD7XW-oVoprJXNShRPGcTpFSQwnK4SLaVRaHrfKK7NRNR-lcKoA/exec";
+        
+        const EMPLOYEE_PASSWORDS = {
+            "Mayank": "mayank",
+            "Employee1": "emp123",
+            "Employee2": "emp456"
+        };
+
+        let currentUser = "";
+
+        function handleLogin() {
+            const user = document.getElementById("username").value;
+            const pass = document.getElementById("password").value;
+            const errorDiv = document.getElementById("loginError");
+
+            errorDiv.style.display = "none";
+            if (!user) { errorDiv.innerText = "Please select your name."; errorDiv.style.display = "block"; return; }
+            
+            if (!EMPLOYEE_PASSWORDS[user] || EMPLOYEE_PASSWORDS[user] !== pass) {
+                errorDiv.innerText = "Invalid password for selected user.";
+                errorDiv.style.display = "block";
                 return;
             }
 
+            currentUser = user;
+            document.getElementById("loggedInUser").innerText = currentUser;
+            document.getElementById("loginSection").classList.add("hidden");
+            document.getElementById("dashboardSection").classList.remove("hidden");
 
-            data.forEach(function(row) {
-
-                const tr =
-                    document.createElement("tr");
-
-
-                /*
-                 IMPORTANT:
-                 Column names containing spaces MUST use:
-                 row["Enquiry Details"]
-                 row["Followup Date"]
-                 row["Remarks"]
-                */
-
-
-                const name =
-                    row["Name"] || "";
-
-                const phone =
-                    row["Phone"] || "";
-
-                const details =
-                    row["Enquiry Details"] || "";
-
-                const remarks =
-                    row["Remarks"] || "";
-
-                const followupDate =
-                    formatDateForInput(row["Followup Date"]);
-
-
-                tr.innerHTML = `
-
-                    <td>${escapeHtml(name)}</td>
-
-                    <td>${escapeHtml(phone)}</td>
-
-                    <td>${escapeHtml(details)}</td>
-
-                    <td>
-                        <input
-                            type="text"
-                            id="remarks_${row.rowIndex}"
-                            value="${escapeHtml(remarks)}"
-                        >
-                    </td>
-
-                    <td>
-                        <input
-                            type="date"
-                            id="date_${row.rowIndex}"
-                            value="${followupDate}"
-                        >
-                    </td>
-
-                    <td>
-                        <button
-                            class="action-btn"
-                            onclick="updateRow(${row.rowIndex})"
-                        >
-                            Update
-                        </button>
-                    </td>
-
-                `;
-
-
-                tbody.appendChild(tr);
-
-            });
-
-        })
-
-        .catch(function(err) {
-
-            console.error(
-                "Error loading data:",
-                err
-            );
-
-            tbody.innerHTML = "";
-
-            showError(
-                "Failed to connect to Google Apps Script. Check your Web App URL and deployment settings."
-            );
-
-        });
-}
-
-
-/* =========================================================
-   UPDATE ROW
-   ========================================================= */
-
-function updateRow(rowIndex) {
-
-    const remarksInput =
-        document.getElementById(
-            `remarks_${rowIndex}`
-        );
-
-    const dateInput =
-        document.getElementById(
-            `date_${rowIndex}`
-        );
-
-
-    const remarks =
-        remarksInput
-            ? remarksInput.value
-            : "";
-
-
-    const followupDate =
-        dateInput
-            ? dateInput.value
-            : "";
-
-
-    const payload = {
-
-        rowIndex: rowIndex,
-
-        remarks: remarks,
-
-        followupDate: followupDate,
-
-        updatedBy: currentUser
-
-    };
-
-
-    /*
-       IMPORTANT:
-       text/plain prevents the browser from
-       sending a CORS preflight OPTIONS request.
-    */
-
-    fetch(WEB_APP_URL, {
-
-        method: "POST",
-
-        headers: {
-            "Content-Type": "text/plain;charset=utf-8"
-        },
-
-        body: JSON.stringify(payload)
-
-    })
-
-    .then(function(response) {
-
-        return response.json();
-
-    })
-
-    .then(function(result) {
-
-        if (result.status === "success") {
-
-            showSuccess(
-                "Updated successfully!"
-            );
-
+            const today = new Date();
+            document.getElementById("todayDate").innerText = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
             loadData();
-
-        } else {
-
-            showError(
-                result.error ||
-                "Failed to update record."
-            );
-
         }
 
-    })
+        function showError(msg) { const d = document.getElementById("appError"); d.innerText = "Error: " + msg; d.style.display = "block"; }
+        function showSuccess(msg) { 
+            const d = document.getElementById("successMessage"); d.innerText = msg; d.style.display = "block";
+            setTimeout(() => d.style.display = "none", 3000);
+        }
 
-    .catch(function(err) {
+        function loadData() {
+            const sheetName = document.getElementById("sheetSelector").value;
+            const tbody = document.getElementById("tableBody");
+            tbody.innerHTML = '<tr><td colspan="7" class="loading">Loading records from ' + sheetName + '...</td></tr>';
 
-        console.error(
-            "Error updating:",
-            err
-        );
+            fetch(`${WEB_APP_URL}?sheet=${encodeURIComponent(sheetName)}`)
+                .then(res => res.json())
+                .then(data => {
+                    tbody.innerHTML = "";
+                    if (data.error) { showError(data.error); return; }
+                    if (!Array.isArray(data) || data.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#777; padding:30px;">No open follow-ups scheduled for today in ${sheetName}!</td></tr>`;
+                        return;
+                    }
 
-        showError(
-            "Failed to communicate with Google Apps Script."
-        );
+                    data.forEach(row => {
+                        const tr = document.createElement("tr");
+                        const existingRemarks = row["Remarks"] || "";
+                        const followupDate = formatDateForInput(row["Followup Date"]);
+                        const currentStatus = row["Status"] || "Open";
 
-    });
-}
+                        tr.innerHTML = `
+                            <td>
+                                <div class="meta-info"><b>ID:</b> ${escapeHtml(row["Enquiry ID"] || "-")}</div>
+                                <div style="font-weight:600; color:#333;">${escapeHtml(row["Student Name"] || "")}</div>
+                                <div class="meta-info">📞 ${escapeHtml(row["Mobile No"] || "")}</div>
+                                <div class="meta-info">✉️ ${escapeHtml(row["Email Id"] || "")}</div>
+                            </td>
+                            <td>
+                                <div style="font-weight:600; color:#007BFF;">${escapeHtml(row["Course"] || "-")}</div>
+                                <div class="meta-info" style="margin-top:4px;"><b>Timing:</b> ${escapeHtml(row["Preferred Timing"] || "-")}</div>
+                                <div class="meta-info"><b>Purpose:</b> ${escapeHtml(row["Purpose"] || "-")}</div>
+                            </td>
+                            <td>
+                                <div class="meta-info"><b>Qual:</b> ${escapeHtml(row["Qualification"] || "-")}</div>
+                                <div class="meta-info" style="margin-top:4px;"><b>Source:</b> ${escapeHtml(row["Source"] || "-")}</div>
+                                <div class="meta-info"><b>Dt:</b> ${escapeHtml(row["Date"] || "-")}</div>
+                            </td>
+                            <td>
+                                <div class="history-box">${escapeHtml(existingRemarks || "No previous remarks")}</div>
+                                <textarea id="remarks_${row.rowIndex}" placeholder="Add new comment..."></textarea>
+                            </td>
+                            <td>
+                                <select id="status_${row.rowIndex}">
+                                    <option value="Open" ${currentStatus === "Open" ? "selected" : ""}>Open</option>
+                                    <option value="Converted" ${currentStatus === "Converted" ? "selected" : ""}>Converted</option>
+                                    <option value="Dropped" ${currentStatus === "Dropped" ? "selected" : ""}>Dropped</option>
+                                </select>
+                            </td>
+                            <td><input type="date" id="date_${row.rowIndex}" value="${followupDate}"></td>
+                            <td><button class="action-btn" onclick="updateRow(${row.rowIndex})">Update</button></td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                })
+                .catch(err => {
+                    tbody.innerHTML = "";
+                    showError("Failed to connect to backend server.");
+                });
+        }
 
+        function updateRow(rowIndex) {
+            const sheetName = document.getElementById("sheetSelector").value;
+            const remarks = document.getElementById(`remarks_${rowIndex}`).value;
+            const followupDate = document.getElementById(`date_${rowIndex}`).value;
+            const status = document.getElementById(`status_${rowIndex}`).value;
 
-/* =========================================================
-   DATE FORMATTER
-   ========================================================= */
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({ 
+                    sheet: sheetName, 
+                    rowIndex, 
+                    remarks, 
+                    followupDate, 
+                    status, 
+                    updatedBy: currentUser 
+                })
+            })
+            .then(res => res.json())
+            .then(res => {
+                if (res.status === "success") {
+                    showSuccess("Updated successfully!");
+                    loadData();
+                } else {
+                    showError(res.error || "Failed to update record.");
+                }
+            })
+            .catch(() => showError("Failed to communicate with server."));
+        }
 
-function formatDateForInput(value) {
+        function formatDateForInput(value) {
+            if (!value) return "";
+            const d = new Date(value);
+            if (isNaN(d.getTime())) return String(value);
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        }
 
-    if (!value) {
-        return "";
-    }
-
-
-    /*
-       Google Apps Script may return:
-       Date object converted to string
-       or yyyy-MM-dd
-    */
-
-    const stringValue =
-        String(value);
-
-
-    if (/^\d{4}-\d{2}-\d{2}$/.test(stringValue)) {
-
-        return stringValue;
-
-    }
-
-
-    const date =
-        new Date(value);
-
-
-    if (isNaN(date.getTime())) {
-
-        return "";
-
-    }
-
-
-    const yyyy =
-        date.getFullYear();
-
-    const mm =
-        String(date.getMonth() + 1)
-            .padStart(2, "0");
-
-    const dd =
-        String(date.getDate())
-            .padStart(2, "0");
-
-
-    return `${yyyy}-${mm}-${dd}`;
-}
-
-
-/* =========================================================
-   HTML ESCAPE
-   ========================================================= */
-
-function escapeHtml(value) {
-
-    return String(value)
-
-        .replace(/&/g, "&amp;")
-
-        .replace(/</g, "&lt;")
-
-        .replace(/>/g, "&gt;")
-
-        .replace(/"/g, "&quot;")
-
-        .replace(/'/g, "&#039;");
-}
-
-</script>
-
+        function escapeHtml(str) {
+            return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+    </script>
 </body>
 </html>
