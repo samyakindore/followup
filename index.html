@@ -258,7 +258,8 @@
                         <option value="Leads">Leads</option>
                     </select>
                 </div>
-                <h2>Pending & Today's Follow-ups <span style="color: #64748b; font-size: 16px; font-weight: 400;">(Due $\le$ <span id="todayDate"></span>)</span></h2>
+                <!-- Fixed Header Text (Removed LaTeX notation) -->
+                <h2>Pending & Today's Follow-ups <span style="color: #64748b; font-size: 16px; font-weight: 400;">(Due &le; <span id="todayDate"></span>)</span></h2>
             </div>
             <div style="display: flex; gap: 15px; align-items: center;">
                 <button class="refresh-btn" onclick="loadData()">Refresh Records</button>
@@ -365,36 +366,31 @@
         function filterAndRender() {
             const query = document.getElementById("searchInput").value.toLowerCase().trim();
             
-            // Get today's date formatted as YYYY-MM-DD (ignoring time component)
             const todayObj = new Date();
             todayObj.setHours(0, 0, 0, 0);
 
-            // Filter records: Status should generally be open, and follow-up date <= Today
             filteredRecords = allRecords.filter(row => {
                 const status = String(row["Status"] || "Open").trim();
                 
-                // Optional: If you only want to see open follow-ups that are due or past due
                 if (status.toLowerCase() === "converted" || status.toLowerCase() === "dropped") {
                     return false;
                 }
 
                 const rawDate = row["Followup Date"];
-                if (!rawDate) return false; // Skip if no date provided
+                if (!rawDate) return false;
 
                 const followupDateObj = new Date(rawDate);
                 if (isNaN(followupDateObj.getTime())) return false;
                 followupDateObj.setHours(0, 0, 0, 0);
 
-                // Check if the follow-up date is today or in the past
                 const isDueOrPast = followupDateObj <= todayObj;
                 if (!isDueOrPast) return false;
 
-                // Apply text search query filter if user typed something
                 if (query) {
                     const name = String(row["Student Name"] || "").toLowerCase();
                     const mobile = String(row["Mobile No"] || "").toLowerCase();
                     const course = String(row["Course"] || "").toLowerCase();
-                    const id = String(row["Enquiry ID"] || "").toLowerCase();
+                    const id = String(row["Enquiry ID"] || row["Lead ID"] || row["ID"] || "").toLowerCase();
                     return name.includes(query) || mobile.includes(query) || course.includes(query) || id.includes(query);
                 }
 
@@ -437,7 +433,9 @@
                 const currentStatus = row["Status"] || "Open";
                 const emailVal = row["Email Id"] ? escapeHtml(row["Email Id"]) : "-";
 
-                // Check if it's a missed (past) date
+                // Dynamically look up Lead ID, Enquiry ID, or generic ID
+                const recordId = row["Enquiry ID"] || row["Lead ID"] || row["ID"] || "-";
+
                 let dateBadge = `<span class="badge">Due: ${followupDateStr}</span>`;
                 const fDateObj = new Date(row["Followup Date"]);
                 fDateObj.setHours(0,0,0,0);
@@ -447,7 +445,7 @@
 
                 card.innerHTML = `
                     <div class="card-col">
-                        <span class="badge">ID: ${escapeHtml(row["Enquiry ID"] || "-")}</span>
+                        <span class="badge">ID: ${escapeHtml(recordId)}</span>
                         <h4>${escapeHtml(row["Student Name"] || "Unnamed")}</h4>
                         <div class="sub-text">📞 ${escapeHtml(row["Mobile No"] || "-")}</div>
                         <div class="sub-text">✉️ ${emailVal}</div>
