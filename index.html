@@ -23,92 +23,23 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
             text-align: center;
         }
-        .login-container h2 {
-            margin-bottom: 24px;
-            color: #333;
-            font-weight: 600;
-        }
-        .input-group {
-            text-align: left;
-            margin-bottom: 20px;
-        }
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-size: 14px;
-            font-weight: 500;
-        }
-        .input-group input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-        .input-group input:focus {
-            outline: none;
-            border-color: #007BFF;
-            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
-        }
-        .login-btn {
-            width: 100%;
-            background: #007BFF;
-            color: white;
-            border: none;
-            padding: 12px;
-            cursor: pointer;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 600;
-            transition: background 0.3s;
-        }
+        .login-container h2 { margin-bottom: 24px; color: #333; font-weight: 600; }
+        .input-group { text-align: left; margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; color: #555; font-size: 14px; font-weight: 500; }
+        .input-group input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+        .login-btn { width: 100%; background: #007BFF; color: white; border: none; padding: 12px; cursor: pointer; border-radius: 6px; font-size: 16px; font-weight: 600; }
         .login-btn:hover { background: #0056b3; }
 
-        .dashboard { 
-            background: #fff; 
-            padding: 30px; 
-            border-radius: 12px; 
-            width: 100%; 
-            max-width: 1000px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
-        }
-        .dashboard h2 {
-            margin-top: 0;
-            color: #333;
-        }
+        .dashboard { background: #fff; padding: 30px; border-radius: 12px; width: 100%; max-width: 1000px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .hidden { display: none !important; }
-        
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { border: 1px solid #eee; padding: 12px; text-align: left; }
         th { background-color: #007BFF; color: white; font-weight: 500; }
         tr:nth-child(even) { background-color: #f9f9f9; }
-        
         input[type="text"], input[type="date"] { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;}
-        
-        .action-btn { 
-            background: #28a745; 
-            color: white; 
-            border: none; 
-            padding: 8px 16px; 
-            cursor: pointer; 
-            border-radius: 4px; 
-            font-weight: 500;
-            transition: background 0.3s;
-        }
+        .action-btn { background: #28a745; color: white; border: none; padding: 8px 16px; cursor: pointer; border-radius: 4px; font-weight: 500; }
         .action-btn:hover { background: #218838; }
-        
-        .error-banner {
-            background-color: #f8d7da;
-            color: #721c24;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            border: 1px solid #f5c6cb;
-            display: none;
-        }
+        .error-banner { background-color: #f8d7da; color: #721c24; padding: 12px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #f5c6cb; display: none; }
     </style>
 </head>
 <body>
@@ -155,7 +86,7 @@
     </div>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxsQU8YADim0Y2YFBCcD7XW-oVoprJXNShRPGcTpFSQwnK4SLaVRaHrfKK7NRNR-lcKoA/exec";
+        const WEB_APP_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL";
         let currentUser = "";
 
         function handleLogin() {
@@ -190,10 +121,7 @@
             errorDiv.style.display = "none";
 
             fetch(WEB_APP_URL)
-                .then(response => {
-                    if (!response.ok) throw new Error("Network response was not ok (HTTP " + response.status + ")");
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
                     const tbody = document.getElementById("tableBody");
                     tbody.innerHTML = "";
@@ -223,34 +151,38 @@
                 })
                 .catch(err => {
                     console.error("Error loading data:", err);
-                    showError("Failed to connect to backend script. Verify your WEB_APP_URL or deployment permissions.");
+                    showError("Failed to connect to backend script.");
                 });
         }
 
         function updateRow(rowIndex) {
-            const remarks = encodeURIComponent(document.getElementById(`remarks_${rowIndex}`).value);
+            const remarks = document.getElementById(`remarks_${rowIndex}`).value;
             const followupDate = document.getElementById(`date_${rowIndex}`).value;
-            const updatedBy = encodeURIComponent(currentUser);
 
-            const updateUrl = `${WEB_APP_URL}?action=update&rowIndex=${rowIndex}&remarks=${remarks}&followupDate=${followupDate}&updatedBy=${updatedBy}`;
+            const payload = {
+                rowIndex: rowIndex,
+                remarks: remarks,
+                followupDate: followupDate,
+                updatedBy: currentUser 
+            };
 
-            fetch(updateUrl)
-                .then(response => {
-                    if (!response.ok) throw new Error("Failed to reach server");
-                    return response.json();
-                })
-                .then(result => {
-                    if(result.status === "success") {
-                        alert("Updated successfully!");
-                        loadData(); 
-                    } else {
-                        showError(result.message || "Unknown backend error during update.");
-                    }
-                })
-                .catch(err => {
-                    console.error("Error updating:", err);
-                    showError("Failed to update record. Check console logs.");
-                });
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if(result.status === "success") {
+                    alert("Updated successfully!");
+                    loadData(); 
+                } else {
+                    showError(result.error || "Failed to update record.");
+                }
+            })
+            .catch(err => {
+                console.error("Error updating:", err);
+                showError("Failed to communicate with server during update.");
+            });
         }
     </script>
 </body>
