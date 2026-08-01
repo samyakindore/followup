@@ -53,12 +53,17 @@
         let currentUser = "";
 
         function handleLogin() {
-            const user = document.getElementById("username").value.trim();
+            const user = document.getElementById("username").value.trim().toLowerCase();
             const pass = document.getElementById("password").value;
 
-            // Simple hardcoded check (You can expand this logic as needed)
-            if (pass === "your_secure_password_123" && user !== "") {
-                currentUser = user;
+            // Define allowed users and their specific passwords
+            const usersDatabase = {
+                "mayank": "mayank",
+                "anil": "anil"
+            };
+
+            if (usersDatabase[user] && usersDatabase[user] === pass) {
+                currentUser = user; 
                 document.getElementById("loggedInUser").innerText = currentUser;
                 document.getElementById("loginSection").classList.add("hidden");
                 document.getElementById("dashboardSection").classList.remove("hidden");
@@ -98,28 +103,31 @@
                 .catch(err => console.error("Error loading data:", err));
         }
 
-        function handleLogin() {
-    const user = document.getElementById("username").value.trim().toLowerCase();
-    const pass = document.getElementById("password").value;
+        function updateRow(rowIndex) {
+            const remarks = document.getElementById(`remarks_${rowIndex}`).value;
+            const followupDate = document.getElementById(`date_${rowIndex}`).value;
 
-    // Define allowed users and their specific passwords here
-    const usersDatabase = {
-        "mayank": "mayank", // Now Mayank can log in with this password
-        "anil": "anil"                 // You can add more staff here
-    };
+            const payload = {
+                rowIndex: rowIndex,
+                remarks: remarks,
+                followupDate: followupDate,
+                updatedBy: currentUser 
+            };
 
-    if (usersDatabase[user] && usersDatabase[user] === pass) {
-        currentUser = user; // Automatically captures the username
-        document.getElementById("loggedInUser").innerText = currentUser;
-        document.getElementById("loginSection").classList.add("hidden");
-        document.getElementById("dashboardSection").classList.remove("hidden");
-        
-        document.getElementById("todayDate").innerText = new Date().toISOString().split('T')[0];
-        loadData();
-    } else {
-        alert("Invalid username or password.");
-    }
-}
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(result => {
+                alert("Updated successfully!");
+                loadData(); 
+            })
+            .catch(err => {
+                console.error("Error updating:", err);
+                alert("Failed to update.");
+            });
+        }
     </script>
 </body>
 </html>
