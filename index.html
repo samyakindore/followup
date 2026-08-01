@@ -32,7 +32,7 @@
         .input-group input, .input-group select { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #fff; outline: none; transition: border-color 0.2s; }
         .input-group input:focus, .input-group select:focus { border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14,165,233,0.1); }
 
-        .login-btn, .refresh-btn { 
+        .login-btn, .refresh-btn, .page-btn { 
             background: #0ea5e9; 
             color: white; 
             border: none; 
@@ -43,7 +43,7 @@
             transition: background 0.2s; 
         }
         .login-btn { width: 100%; padding: 12px; font-size: 15px; }
-        .login-btn:hover, .refresh-btn:hover { background: #0284c7; }
+        .login-btn:hover, .refresh-btn:hover, .page-btn:hover:not(:disabled) { background: #0284c7; }
         .refresh-btn { font-size: 13px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
         /* Dashboard Container */
@@ -65,12 +65,52 @@
             align-items: center; 
             border-bottom: 2px solid #f1f5f9; 
             padding-bottom: 20px; 
-            margin-bottom: 25px; 
+            margin-bottom: 20px; 
             flex-wrap: wrap; 
             gap: 15px; 
         }
         .controls-left { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
         .toolbar h2 { margin: 0; font-size: 22px; color: #0f172a; font-weight: 700; }
+
+        /* Secondary Toolbar for Search & Count */
+        .sub-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .search-box {
+            position: relative;
+            flex: 1;
+            max-width: 350px;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 10px 14px 10px 36px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+        }
+        .search-box input:focus { border-color: #0ea5e9; box-shadow: 0 0 0 2px rgba(14,165,233,0.1); }
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 14px;
+        }
+        .count-badge {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+        }
         
         /* Banners */
         .error-banner, .success-banner { padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; display: none; font-size: 14px; font-weight: 500; }
@@ -153,7 +193,21 @@
         }
         .action-btn:hover { background: #059669; }
 
-        /* Responsive Layout for smaller screens */
+        /* Pagination Bar */
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid #f1f5f9;
+        }
+        .page-btn:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+        }
+
+        /* Responsive */
         @media(max-width: 1100px) {
             .enquiry-card { grid-template-columns: 1fr 1fr; }
         }
@@ -205,11 +259,27 @@
             </div>
         </div>
 
+        <!-- Secondary Toolbar: Search & Count -->
+        <div class="sub-toolbar">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="Search by student name, phone, course..." oninput="handleSearch()">
+            </div>
+            <div class="count-badge" id="countBadge">Total Records: 0</div>
+        </div>
+
         <div id="appError" class="error-banner"></div>
         <div id="successMessage" class="success-banner"></div>
 
         <div id="cardsContainer">
             <!-- Dynamic Cards Will Load Here -->
+        </div>
+
+        <!-- Pagination Bar -->
+        <div class="pagination-container" id="paginationBar" style="display: none;">
+            <button class="page-btn" id="prevBtn" onclick="changePage(-1)">Previous</button>
+            <span id="pageInfo" style="font-size: 13px; font-weight: 600; color: #475569;">Page 1 of 1</span>
+            <button class="page-btn" id="nextBtn" onclick="changePage(1)">Next</button>
         </div>
     </div>
 
@@ -223,6 +293,10 @@
         };
 
         let currentUser = "";
+        let allRecords = [];
+        let filteredRecords = [];
+        let currentPage = 1;
+        const pageSize = 10;
 
         function handleLogin() {
             const user = document.getElementById("username").value;
@@ -258,72 +332,17 @@
             const sheetName = document.getElementById("sheetSelector").value;
             const container = document.getElementById("cardsContainer");
             container.innerHTML = `<div class="loading">Loading records from ${sheetName}...</div>`;
+            document.getElementById("paginationBar").style.display = "none";
 
             fetch(`${WEB_APP_URL}?sheet=${encodeURIComponent(sheetName)}`)
                 .then(res => res.json())
                 .then(data => {
-                    container.innerHTML = "";
-                    if (data.error) { showError(data.error); return; }
-                    if (!Array.isArray(data) || data.length === 0) {
-                        container.innerHTML = `<div class="loading">No open follow-ups scheduled for today in ${sheetName}!</div>`;
-                        return;
-                    }
-
-                    data.forEach(row => {
-                        const card = document.createElement("div");
-                        card.className = "enquiry-card";
-                        
-                        const existingRemarks = row["Remarks"] || "";
-                        const followupDate = formatDateForInput(row["Followup Date"]);
-                        const currentStatus = row["Status"] || "Open";
-
-                        card.innerHTML = `
-                            <!-- Col 1: Student Info -->
-                            <div class="card-col">
-                                <span class="badge">ID: ${escapeHtml(row["Enquiry ID"] || "-")}</span>
-                                <h4>${escapeHtml(row["Student Name"] || "Unnamed")}</h4>
-                                <div class="sub-text">📞 ${escapeHtml(row["Mobile No"] || "-")}</div>
-                                <div class="sub-text">✉️ ${escapeHtml(row["Email Id"] || "-")}</div>
-                            </div>
-
-                            <!-- Col 2: Course & Preferences -->
-                            <div class="card-col">
-                                <span class="badge badge-course">${escapeHtml(row["Course"] || "General Enquiry")}</span>
-                                <div class="sub-text"><b>Timing:</b> ${escapeHtml(row["Preferred Timing"] || "-")}</div>
-                                <div class="sub-text"><b>Purpose:</b> ${escapeHtml(row["Purpose"] || "-")}</div>
-                                <div class="sub-text"><b>Source:</b> ${escapeHtml(row["Source"] || "-")}</div>
-                            </div>
-
-                            <!-- Col 3: Remarks History & Input -->
-                            <div class="card-col" style="grid-column: span 1;">
-                                <div class="sub-text" style="font-weight:600; color:#334155; margin-bottom:2px;">Remarks History</div>
-                                <div class="history-box">${escapeHtml(existingRemarks || "No previous remarks")}</div>
-                                <textarea id="remarks_${row.rowIndex}" placeholder="Add new comment..."></textarea>
-                            </div>
-
-                            <!-- Col 4: Status Selector -->
-                            <div class="card-col">
-                                <div class="sub-text" style="font-weight:600; color:#334155; margin-bottom:4px;">Status</div>
-                                <select id="status_${row.rowIndex}">
-                                    <option value="Open" ${currentStatus === "Open" ? "selected" : ""}>Open</option>
-                                    <option value="Converted" ${currentStatus === "Converted" ? "selected" : ""}>Converted</option>
-                                    <option value="Dropped" ${currentStatus === "Dropped" ? "selected" : ""}>Dropped</option>
-                                </select>
-                            </div>
-
-                            <!-- Col 5: Next Followup Date -->
-                            <div class="card-col">
-                                <div class="sub-text" style="font-weight:600; color:#334155; margin-bottom:4px;">Next Follow-up</div>
-                                <input type="date" id="date_${row.rowIndex}" value="${followupDate}">
-                            </div>
-
-                            <!-- Col 6: Action Button -->
-                            <div class="card-col" style="display:flex; align-items:flex-end;">
-                                <button class="action-btn" onclick="updateRow(${row.rowIndex})">Save Update</button>
-                            </div>
-                        `;
-                        container.appendChild(card);
-                    });
+                    if (data.error) { container.innerHTML = ""; showError(data.error); return; }
+                    if (!Array.isArray(data)) { data = []; }
+                    
+                    allRecords = data;
+                    document.getElementById("searchInput").value = "";
+                    filterAndRender();
                 })
                 .catch(err => {
                     container.innerHTML = "";
@@ -331,11 +350,127 @@
                 });
         }
 
+        function handleSearch() {
+            currentPage = 1;
+            filterAndRender();
+        }
+
+        function filterAndRender() {
+            const query = document.getElementById("searchInput").value.toLowerCase().trim();
+            
+            if (query) {
+                filteredRecords = allRecords.filter(row => {
+                    const name = String(row["Student Name"] || "").toLowerCase();
+                    const mobile = String(row["Mobile No"] || "").toLowerCase();
+                    const course = String(row["Course"] || "").toLowerCase();
+                    const id = String(row["Enquiry ID"] || "").toLowerCase();
+                    return name.includes(query) || mobile.includes(query) || course.includes(query) || id.includes(query);
+                });
+            } else {
+                filteredRecords = [...allRecords];
+            }
+
+            renderPage();
+        }
+
+        function renderPage() {
+            const container = document.getElementById("cardsContainer");
+            const paginationBar = document.getElementById("paginationBar");
+            container.innerHTML = "";
+
+            document.getElementById("countBadge").innerText = `Total Records: ${filteredRecords.length}`;
+
+            if (filteredRecords.length === 0) {
+                container.innerHTML = `<div class="loading">No matching records found!</div>`;
+                paginationBar.style.display = "none";
+                return;
+            }
+
+            const totalPages = Math.ceil(filteredRecords.length / pageSize);
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            const startIdx = (currentPage - 1) * pageSize;
+            const endIdx = startIdx + pageSize;
+            const pageItems = filteredRecords.slice(startIdx, endIdx);
+
+            pageItems.forEach(row => {
+                const card = document.createElement("div");
+                card.className = "enquiry-card";
+                
+                const existingRemarks = row["Remarks"] || "";
+                const followupDate = formatDateForInput(row["Followup Date"]);
+                const currentStatus = row["Status"] || "Open";
+
+                card.innerHTML = `
+                    <div class="card-col">
+                        <span class="badge">ID: ${escapeHtml(row["Enquiry ID"] || "-")}</span>
+                        <h4>${escapeHtml(row["Student Name"] || "Unnamed")}</h4>
+                        <div class="sub-text">📞 ${escapeHtml(row["Mobile No"] || "-")}</div>
+                        <div class="sub-text">✉️ ${escapeHtml(row["Email Id"] || "-")}</div>
+                    </div>
+                    <div class="card-col">
+                        <span class="badge badge-course">${escapeHtml(row["Course"] || "General Enquiry")}</span>
+                        <div class="sub-text"><b>Timing:</b> ${escapeHtml(row["Preferred Timing"] || "-")}</div>
+                        <div class="sub-text"><b>Purpose:</b> ${escapeHtml(row["Purpose"] || "-")}</div>
+                        <div class="sub-text"><b>Source:</b> ${escapeHtml(row["Source"] || "-")}</div>
+                    </div>
+                    <div class="card-col">
+                        <div class="sub-text" style="font-weight:600; color:#334155; margin-bottom:2px;">Remarks History</div>
+                        <div class="history-box">${escapeHtml(existingRemarks || "No previous remarks")}</div>
+                        <textarea id="remarks_${row.rowIndex}" placeholder="Add new comment..."></textarea>
+                    </div>
+                    <div class="card-col">
+                        <div class="sub-text" style="font-weight:600; color:#334155; margin-bottom:4px;">Status</div>
+                        <select id="status_${row.rowIndex}">
+                            <option value="Open" ${currentStatus === "Open" ? "selected" : ""}>Open</option>
+                            <option value="Converted" ${currentStatus === "Converted" ? "selected" : ""}>Converted</option>
+                            <option value="Dropped" ${currentStatus === "Dropped" ? "selected" : ""}>Dropped</option>
+                        </select>
+                    </div>
+                    <div class="card-col">
+                        <div class="sub-text" style="font-weight:600; color:#334155; margin-bottom:4px;">Next Follow-up</div>
+                        <input type="date" id="date_${row.rowIndex}" value="${followupDate}">
+                    </div>
+                    <div class="card-col" style="display:flex; align-items:flex-end;">
+                        <button class="action-btn" onclick="updateRow(${row.rowIndex})">Save Update</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            if (filteredRecords.length > pageSize) {
+                paginationBar.style.display = "flex";
+                document.getElementById("pageInfo").innerText = `Page ${currentPage} of ${totalPages}`;
+                document.getElementById("prevBtn").disabled = (currentPage === 1);
+                document.getElementById("nextBtn").disabled = (currentPage === totalPages);
+            } else {
+                paginationBar.style.display = "none";
+            }
+        }
+
+        function changePage(direction) {
+            currentPage += direction;
+            renderPage();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function updateRow(rowIndex) {
             const sheetName = document.getElementById("sheetSelector").value;
             const remarks = document.getElementById(`remarks_${rowIndex}`).value;
-            const followupDate = document.getElementById(`date_${rowIndex}`).value;
             const status = document.getElementById(`status_${rowIndex}`).value;
+            let followupDate = document.getElementById(`date_${rowIndex}`).value;
+
+            // Prompt for next follow-up date if status is Open and date field is blank or user wants to confirm
+            if (status.toLowerCase() === "open" && !followupDate) {
+                const userDateInput = prompt("Status is Open. Please enter the next follow-up date (YYYY-MM-DD):", "");
+                if (userDateInput !== null) {
+                    followupDate = userDateInput.trim();
+                    document.getElementById(`date_${rowIndex}`).value = followupDate;
+                } else {
+                    return; // Cancelled update
+                }
+            }
 
             fetch(WEB_APP_URL, {
                 method: "POST",
