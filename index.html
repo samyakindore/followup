@@ -53,16 +53,11 @@
         let currentUser = "";
 
         function handleLogin() {
-            const user = document.getElementById("username").value.trim().toLowerCase();
+            const user = document.getElementById("username").value.trim();
             const pass = document.getElementById("password").value;
 
-            // Define allowed users and their specific passwords
-            const usersDatabase = {
-                "mayank": "mayank",
-                "anil": "anil"
-            };
-
-            if (usersDatabase[user] && usersDatabase[user] === pass) {
+            // Simplified check: any non-empty username works as long as password is "mayank"
+            if (pass === "mayank" && user !== "") {
                 currentUser = user; 
                 document.getElementById("loggedInUser").innerText = currentUser;
                 document.getElementById("loginSection").classList.add("hidden");
@@ -71,7 +66,7 @@
                 document.getElementById("todayDate").innerText = new Date().toISOString().split('T')[0];
                 loadData();
             } else {
-                alert("Invalid username or password.");
+                alert("Invalid username or password. (Password is 'mayank')");
             }
         }
 
