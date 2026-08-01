@@ -49,6 +49,7 @@
     </div>
 
     <script>
+        // PASTE YOUR LATEST DEPLOYED GOOGLE APPS SCRIPT WEB APP URL HERE:
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxsQU8YADim0Y2YFBCcD7XW-oVoprJXNShRPGcTpFSQwnK4SLaVRaHrfKK7NRNR-lcKoA/exec";
         let currentUser = "";
 
@@ -56,7 +57,6 @@
             const user = document.getElementById("username").value.trim();
             const pass = document.getElementById("password").value;
 
-            // Simplified check: any non-empty username works as long as password is "mayank"
             if (pass === "mayank" && user !== "") {
                 currentUser = user; 
                 document.getElementById("loggedInUser").innerText = currentUser;
@@ -99,29 +99,23 @@
         }
 
         function updateRow(rowIndex) {
-            const remarks = document.getElementById(`remarks_${rowIndex}`).value;
+            const remarks = encodeURIComponent(document.getElementById(`remarks_${rowIndex}`).value);
             const followupDate = document.getElementById(`date_${rowIndex}`).value;
+            const updatedBy = encodeURIComponent(currentUser);
 
-            const payload = {
-                rowIndex: rowIndex,
-                remarks: remarks,
-                followupDate: followupDate,
-                updatedBy: currentUser 
-            };
+            // Construct URL parameters to cleanly send update data through GET request to avoid CORS blocks
+            const updateUrl = `${WEB_APP_URL}?action=update&rowIndex=${rowIndex}&remarks=${remarks}&followupDate=${followupDate}&updatedBy=${updatedBy}`;
 
-            fetch(WEB_APP_URL, {
-                method: "POST",
-                body: JSON.stringify(payload)
-            })
-            .then(response => response.json())
-            .then(result => {
-                alert("Updated successfully!");
-                loadData(); 
-            })
-            .catch(err => {
-                console.error("Error updating:", err);
-                alert("Failed to update.");
-            });
+            fetch(updateUrl)
+                .then(response => response.json())
+                .then(result => {
+                    alert("Updated successfully!");
+                    loadData(); 
+                })
+                .catch(err => {
+                    console.error("Error updating:", err);
+                    alert("Failed to update.");
+                });
         }
     </script>
 </body>
